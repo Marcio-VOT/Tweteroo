@@ -13,7 +13,6 @@ const userList = [{
 }];
 let tweet = [{
 	username: "bobesponja",
-  avatar: "https://super.abril.com.br/wp-content/uploads/2020/09/04-09_gato_SITE.jpg?quality=70&strip=info",
   tweet: "eu amo o hub"
 }];
 
@@ -22,7 +21,7 @@ app.post('/sign-up', (req, res) => {
 
   const dup = userList.find((user)=> user.username === newUser.username);
 
-  !dup ? handleNewUser(): res.send("UNAUTHORIZED");;
+  !dup ? handleNewUser(): res.send("ALREADYTAKEN");;
 
   function handleNewUser(){
     userList.push(newUser);
@@ -36,27 +35,34 @@ app.post('/tweets', (req, res) => {
 
   const isUser = userList.find((user)=> user.username === userPost.username);
 
-  isUser ? handleUserPost(): res.send("ALREADYTAKEN");
+  isUser ? handleUserPost(): res.send("UNAUTHORIZED");
 
   function handleUserPost(){
     const username = userPost.username;
-    const avatar = (userList.find((user)=> user.username === userPost.username )).avatar;
-    const  tweet = userPost.tweet;
+    const  post = userPost.tweet;
     const newPost = {
         username,
-        avatar,
-        tweet
+        tweet: post
       };
+
     tweet.push(newPost);
+
     if(tweet.length > 10)
       tweet = tweet.slice(tweet.length-10, tweet.length);
+      
     res.send("OK")
   }
-    
 });
 
 app.get('/tweets', (req, res) => {
-  res.send(tweet);
+  const tweetList = tweet.map((post)=> {
+    return{
+      username : post.username,
+      avatar: (userList.find((user)=> user.username === post.username)).avatar,
+      tweet: post.tweet
+  }
+  });
+  res.send(tweetList);
 });
 
 app.listen(PORT);
